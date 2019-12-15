@@ -10,7 +10,7 @@ const VideoRoot: React.FC<Props> = () => {
 
   React.useEffect(() => {
     console.log("running");
-    const codeReader = new BrowserBarcodeReader();
+    const codeReader = new BrowserBarcodeReader(300);
 
     codeReader
       .decodeFromInputVideoDevice(undefined, "video-element")
@@ -32,7 +32,7 @@ const VideoRoot: React.FC<Props> = () => {
         <video
           id="video-element"
           width="600"
-          height="400"
+          height="350"
           style={{ border: "1px solid gray" }}
         ></video>
       </div>
