@@ -22,58 +22,82 @@ function getOpenLibraryUrl(isbn) {
 interface Props {}
 
 const VideoRoot: React.FC<Props> = () => {
-  const [code, setCode] = React.useState("");
+  // component state
   const [bookData, setBookData] = React.useState<BookData>({
     ISBN: "",
     preview_url: "",
     title: "",
     author: []
   });
-  let [devices, setDevices] = React.useState([]);
+  let [selectedCameraId, setSelectedCameraId] = React.useState(null);
+  let [availableCameras, setAvailableCameras] = React.useState([]);
 
-  const readCode = () => {
-    const codeReader = new BrowserBarcodeReader();
+  // scanning helper function
+  const scanCode = codeReader => {
+    codeReader.getVideoInputDevices().then(videoInputDevices => {
+      setAvailableCameras(videoInputDevices);
+      setSelectedCameraId(videoInputDevices[0].deviceId);
 
-    codeReader
-      .decodeFromInputVideoDevice(undefined, "video-element")
-      .then(res => {
-        setCode(res.text);
-        let URL = getOpenLibraryUrl(res.text);
-        axios
-          .get(URL)
-          .then(function(response) {
-            // handle success
-            let { data } = response;
-            const key = Object.keys(data)[0];
-            const displayData: BookData = {
-              ISBN: res.text,
-              title: data[key].title,
-              authors: data[key].authors
-            };
+      // FIXME: remove unused var
+      let selectedDeviceId = selectedCameraId
+        ? selectedCameraId
+        : videoInputDevices[0].deviceId;
 
-            setBookData(displayData);
-          })
-          .catch(function(error) {
-            // handle error
-            console.log(error);
-          });
-      })
-      .catch(e => console.log("error decoding barcode"));
+      codeReader
+        .decodeFromInputVideoDevice(selectedCameraId, "video-element")
+        .then(res => {
+          const URL = getOpenLibraryUrl(res.text); // res.text is the scanned ISBN code
+          axios
+            .get(URL)
+            .then(function(response) {
+              // handle success
+              let { data } = response;
+              const key = Object.keys(data)[0];
+              const displayData: BookData = {
+                ISBN: res.text,
+                title: data[key].title,
+                authors: data[key].authors
+              };
+              setBookData(displayData);
+            })
+            .catch(e => console.log("error decoding barcode"));
+        });
+    });
   };
 
+  const renderDropdown = () => {
+    if (availableCameras.length === 0) {
+      return null;
+    } else {
+      return (
+        <div id="sourceSelectPanel">
+          <label htmlFor="sourceSelect">Change video source:</label>
+          <select
+            id="sourceSelect"
+            value={
+              selectedCameraId ? selectedCameraId : availableCameras[0].deviceId
+            }
+            onClick={e => {
+              console.log("changing");
+              setSelectedCameraId(e.target.value);
+            }}
+          >
+            {availableCameras.map(option => (
+              <option key={option.deviceId} value={option.deviceId}>
+                {option.label}
+              </option>
+            ))}
+            )}
+          </select>
+        </div>
+      );
+    }
+  };
   React.useEffect(() => {
     console.log("running");
     const codeReader = new BrowserBarcodeReader();
 
-    // REFERENCE:  https://github.com/zxing-js/library
-    codeReader
-      .listVideoInputDevices()
-      .then(videoInputDevices => {
-        setDevices(videoInputDevices);
-      })
-      .catch(err => console.error(err));
-
-    readCode();
+    scanCode(codeReader);
 
     return () => {
       // cleanup
@@ -83,6 +107,7 @@ const VideoRoot: React.FC<Props> = () => {
   return (
     <>
       <div>
+        {renderDropdown()}
         <video
           id="video-element"
           width="600"
@@ -90,15 +115,8 @@ const VideoRoot: React.FC<Props> = () => {
           style={{ border: "1px solid gray" }}
         ></video>
       </div>
-      <div>{code ? "Scanned" : ""}</div>
+      <div>{bookData.ISBN ? "Scanned" : ""}</div>
       <BookdataView bookdata={bookData} />
-
-      <h4>DEVICES</h4>
-      <ol>
-        {devices.map(device => (
-          <li key={device.deviceId}>{device.label}</li>
-        ))}
-      </ol>
     </>
   );
 };
