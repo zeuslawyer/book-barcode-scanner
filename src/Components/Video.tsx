@@ -23,12 +23,13 @@ interface Props {}
 
 const VideoRoot: React.FC<Props> = () => {
   // component state
-  const [bookData, setBookData] = React.useState<BookData>({
+  const initialBookData = {
     ISBN: "",
     preview_url: "",
     title: "",
     author: []
-  });
+  };
+  const [bookData, setBookData] = React.useState<BookData>(initialBookData);
   let [selectedCameraId, setSelectedCameraId] = React.useState(null);
   let [availableCameras, setAvailableCameras] = React.useState([]);
 
@@ -77,8 +78,8 @@ const VideoRoot: React.FC<Props> = () => {
             value={
               selectedCameraId ? selectedCameraId : availableCameras[0].deviceId
             }
-            onClick={e => {
-              console.log("changing");
+            onChange={e => {
+              console.log("changing", e.target.value);
               setSelectedCameraId(e.target.value);
             }}
           >
@@ -93,6 +94,7 @@ const VideoRoot: React.FC<Props> = () => {
       );
     }
   };
+
   React.useEffect(() => {
     console.log("running");
     const codeReader = new BrowserBarcodeReader();
@@ -102,7 +104,7 @@ const VideoRoot: React.FC<Props> = () => {
     return () => {
       // cleanup
     };
-  }, []);
+  }, [bookData]);
 
   return (
     <>
@@ -115,8 +117,12 @@ const VideoRoot: React.FC<Props> = () => {
           style={{ border: "1px solid gray" }}
         ></video>
       </div>
-      <div>{bookData.ISBN ? "Scanned" : ""}</div>
+      <div>
+        {bookData.ISBN ? "Scanned" : "Hold up a book's barcode to the camera"}
+      </div>
+      <br />
       <BookdataView bookdata={bookData} />
+      <button onClick={() => setBookData(initialBookData)}>RESET</button>
     </>
   );
 };
