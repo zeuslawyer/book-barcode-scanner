@@ -5,6 +5,8 @@ import axios from "axios";
 import { BrowserBarcodeReader } from "@zxing/library"; // reference:  https://zxing-js.github.io/library/examples/barcode-camera/
 import BookdataView from "./Bookdata";
 
+// REFERENCE:  examples: https://zxing-js.github.io/library/
+
 export interface BookData {
   ISBN: string;
   title: string;
@@ -13,6 +15,7 @@ export interface BookData {
 }
 
 function getOpenLibraryUrl(isbn) {
+  // https://openlibrary.org/dev/docs/api/books
   return `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`;
 }
 
@@ -20,23 +23,21 @@ interface Props {}
 
 const VideoRoot: React.FC<Props> = () => {
   const [code, setCode] = React.useState("");
-  const [timestamp, setTimestamp] = React.useState("");
   const [bookData, setBookData] = React.useState<BookData>({
     ISBN: "",
     preview_url: "",
     title: "",
     author: []
   });
+  let [devices, setDevices] = React.useState([]);
 
-  React.useEffect(() => {
-    console.log("running");
-    const codeReader = new BrowserBarcodeReader(300);
+  const readCode = () => {
+    const codeReader = new BrowserBarcodeReader();
 
     codeReader
       .decodeFromInputVideoDevice(undefined, "video-element")
       .then(res => {
         setCode(res.text);
-        setTimestamp(Date(res.timestamp));
         let URL = getOpenLibraryUrl(res.text);
         axios
           .get(URL)
@@ -58,6 +59,21 @@ const VideoRoot: React.FC<Props> = () => {
           });
       })
       .catch(e => console.log("error decoding barcode"));
+  };
+
+  React.useEffect(() => {
+    console.log("running");
+    const codeReader = new BrowserBarcodeReader();
+
+    // REFERENCE:  https://github.com/zxing-js/library
+    codeReader
+      .listVideoInputDevices()
+      .then(videoInputDevices => {
+        setDevices(videoInputDevices);
+      })
+      .catch(err => console.error(err));
+
+    readCode();
 
     return () => {
       // cleanup
@@ -76,6 +92,13 @@ const VideoRoot: React.FC<Props> = () => {
       </div>
       <div>{code ? "Scanned" : ""}</div>
       <BookdataView bookdata={bookData} />
+
+      <h4>DEVICES</h4>
+      <ol>
+        {devices.map(device => (
+          <li key={device.deviceId}>{device.label}</li>
+        ))}
+      </ol>
     </>
   );
 };
