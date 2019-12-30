@@ -98,7 +98,7 @@ const VideoRoot: React.FC<Props> = () => {
       codeReader = undefined;
     };
     // eslint-disable-next-line
-  }, [bookData]);
+  }, [bookData, selectedCameraId]);
 
   return (
     <>
@@ -115,7 +115,9 @@ const VideoRoot: React.FC<Props> = () => {
         <p>
           {bookData.ISBN ? "Scanned" : "Hold up a book's barcode to the camera"}
         </p>
-        <p>Selected Camera: {selectedCameraId}</p>
+        {availableCameras.length > 2 && (
+          <p>Selected Camera: {selectedCameraId}</p>
+        )}
       </div>
       <br />
       <BookdataView bookdata={bookData} />
