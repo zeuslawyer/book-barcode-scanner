@@ -39,11 +39,6 @@ const VideoRoot: React.FC<Props> = () => {
       setAvailableCameras(videoInputDevices);
       setSelectedCameraId(videoInputDevices[0].deviceId);
 
-      // FIXME: remove unused var
-      // let selectedDeviceId = selectedCameraId
-      //   ? selectedCameraId
-      //   : videoInputDevices[0].deviceId;
-
       codeReader
         .decodeFromInputVideoDevice(selectedCameraId, "video-element")
         .then(res => {
@@ -75,9 +70,7 @@ const VideoRoot: React.FC<Props> = () => {
           <label htmlFor="sourceSelect">Change video source:</label>
           <select
             id="sourceSelect"
-            value={
-              selectedCameraId 
-            }
+            value={selectedCameraId}
             onChange={e => {
               setSelectedCameraId(e.target.value);
             }}
@@ -96,12 +89,13 @@ const VideoRoot: React.FC<Props> = () => {
 
   React.useEffect(() => {
     console.log("running");
-    const codeReader = new BrowserBarcodeReader();
+    let codeReader = new BrowserBarcodeReader();
 
     scanCode(codeReader);
 
     return () => {
-      // cleanup
+      // cleanup on each rerender caused by state change
+      codeReader = undefined;
     };
     // eslint-disable-next-line
   }, [bookData]);
