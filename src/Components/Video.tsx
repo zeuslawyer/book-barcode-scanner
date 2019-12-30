@@ -76,10 +76,9 @@ const VideoRoot: React.FC<Props> = () => {
           <select
             id="sourceSelect"
             value={
-              selectedCameraId ? selectedCameraId : availableCameras[0].deviceId
+              selectedCameraId 
             }
             onChange={e => {
-              console.log("changing", e.target.value);
               setSelectedCameraId(e.target.value);
             }}
           >
@@ -107,7 +106,6 @@ const VideoRoot: React.FC<Props> = () => {
     // eslint-disable-next-line
   }, [bookData]);
 
-
   return (
     <>
       <div>
@@ -120,7 +118,10 @@ const VideoRoot: React.FC<Props> = () => {
         ></video>
       </div>
       <div>
-        {bookData.ISBN ? "Scanned" : "Hold up a book's barcode to the camera"}
+        <p>
+          {bookData.ISBN ? "Scanned" : "Hold up a book's barcode to the camera"}
+        </p>
+        <p>Selected Camera: {selectedCameraId}</p>
       </div>
       <br />
       <BookdataView bookdata={bookData} />
