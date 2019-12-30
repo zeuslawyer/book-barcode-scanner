@@ -115,7 +115,7 @@ const VideoRoot: React.FC<Props> = () => {
         <p>
           {bookData.ISBN ? "Scanned" : "Hold up a book's barcode to the camera"}
         </p>
-        {availableCameras.length > 2 && (
+        {availableCameras.length > 1 && (
           <p>Selected Camera: {selectedCameraId}</p>
         )}
       </div>
