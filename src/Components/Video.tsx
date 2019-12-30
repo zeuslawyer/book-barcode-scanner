@@ -40,9 +40,9 @@ const VideoRoot: React.FC<Props> = () => {
       setSelectedCameraId(videoInputDevices[0].deviceId);
 
       // FIXME: remove unused var
-      let selectedDeviceId = selectedCameraId
-        ? selectedCameraId
-        : videoInputDevices[0].deviceId;
+      // let selectedDeviceId = selectedCameraId
+      //   ? selectedCameraId
+      //   : videoInputDevices[0].deviceId;
 
       codeReader
         .decodeFromInputVideoDevice(selectedCameraId, "video-element")
@@ -67,7 +67,7 @@ const VideoRoot: React.FC<Props> = () => {
   };
 
   const renderDropdown = () => {
-    if (availableCameras.length === 0) {
+    if (availableCameras.length < 2) {
       return null;
     } else {
       return (
@@ -104,7 +104,9 @@ const VideoRoot: React.FC<Props> = () => {
     return () => {
       // cleanup
     };
+    // eslint-disable-next-line
   }, [bookData]);
+
 
   return (
     <>
