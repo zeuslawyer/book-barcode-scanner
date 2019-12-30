@@ -54,8 +54,7 @@ const VideoRoot: React.FC<Props> = () => {
                 title: data[key].title,
                 authors: data[key].authors
               };
-              // change state only if new book is scanned
-              if(res.text !== bookData.ISBN ) setBookData(displayData);
+              setBookData(displayData);
             })
             .catch(e => console.log("error decoding barcode"));
         });
@@ -76,8 +75,8 @@ const VideoRoot: React.FC<Props> = () => {
               setSelectedCameraId(e.target.value);
             }}
           >
-            {availableCameras.map(camera => (
-              <option key={camera.deviceId} value={camera.deviceId}>
+            {availableCameras.map(option => (
+              <option key={option.deviceId} value={option.deviceId}>
                 {option.label}
               </option>
             ))}
