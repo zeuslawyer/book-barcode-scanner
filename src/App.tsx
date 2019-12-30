@@ -12,6 +12,10 @@ const App: React.FC = () => {
         <p>Video should show below</p>
         <VideoRoot />
       </header>
+      <footer>
+        If you're on a mobile device, and the scanner is not working, please
+        swipe down to refresh the page.
+      </footer>
     </div>
   );
 };
