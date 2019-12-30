@@ -37,7 +37,7 @@ const VideoRoot: React.FC<Props> = () => {
   const scanCode = codeReader => {
     codeReader.getVideoInputDevices().then(videoInputDevices => {
       setAvailableCameras(videoInputDevices);
-      setSelectedCameraId(videoInputDevices[0].deviceId);
+      !selectedCameraId && setSelectedCameraId(videoInputDevices[0].deviceId);
 
       codeReader
         .decodeFromInputVideoDevice(selectedCameraId, "video-element")
