@@ -32,7 +32,7 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
     title: '',
     author: []
   };
-  const [bookData, setBookData] = React.useState<BookData>(null);
+  const [lastScannedBook, setLastScannedBook] = React.useState<BookData>(null);
   let [selectedCameraId, setSelectedCameraId] = React.useState(null);
   let [availableCameras, setAvailableCameras] = React.useState([]);
 
@@ -43,7 +43,7 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
       .then(res => {
         // res.text is the scanned ISBN code
         console.log('scanned something', res.text);
-        if (!bookData || bookData.ISBN !== res.text) {
+        if (!lastScannedBook || lastScannedBook.ISBN !== res.text) {
           fetchBookData(res);
         } else {
         }
@@ -65,23 +65,21 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
           authors: data[key].authors
         };
 
-        setBookData(fetchedBook);
+        setLastScannedBook(fetchedBook);
         // update list only if not already there
-        addToList((prevList: BookData[]) => {
-          if (prevList.some(book => book.ISBN === fetchedBook)) {
-            console.log('already there, ', fetchedBook.title);
-            return prevList;
-          } else {
-            console.log(
-              'Not the same? ',
-              fetchedBook.ISBN,
-              prevList.filter(b => b.title === fetchedBook.title)[0]
-            );
-            return [...prevList, fetchedBook];
-          }
-        });
+        updateBookList(fetchedBook);
       })
       .catch(e => console.log(`Error: ${e}`));
+  };
+
+  const updateBookList = (fetched: BookData) => {
+    let alreadyScanned = books.some(book => book.ISBN === fetched.ISBN);
+    console.log(books, fetched.ISBN, 'already scanned? ', alreadyScanned);
+
+    if (!alreadyScanned) {
+      const updated = [...books, fetched];
+      addToList(updated);
+    }
   };
 
   const renderDropdown = () => {
@@ -128,7 +126,7 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
       codeReader = undefined;
     };
     // eslint-disable-next-line
-  }, [bookData, selectedCameraId]);
+  }, [lastScannedBook, selectedCameraId]);
 
   return (
     <>
@@ -143,7 +141,7 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
       </div>
       <div>
         <p>
-          {bookData && bookData.ISBN
+          {lastScannedBook && lastScannedBook.ISBN
             ? 'Scanned'
             : "Hold up a book's barcode to the camera"}
         </p>
@@ -153,7 +151,7 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
       </div>
       <br />
       <BookDataView bookList={books} />
-      <button onClick={() => setBookData(initialBookData)}>RESET</button>
+      <button onClick={() => setLastScannedBook(initialBookData)}>RESET</button>
     </>
   );
 };
