@@ -1,5 +1,11 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## TODO
+
+- re do logic on building a collection of scanned books. Consider changing data structure to object with ISBN keys instead of array
+- ensure the the correct non deprecated API is used from zxing's BrowserCodeReader.ts file
+- use `decodeOnceFromVideoInput` and `.reset()`
+
 ## Available Scripts
 
 In the project directory, you can run:
