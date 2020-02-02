@@ -21,7 +21,7 @@ function getOpenLibraryUrl(isbn) {
 
 interface Props {}
 
-const VideoRoot: React.FC<Props> = () => {
+export const VideoRoot: React.FC<Props> = () => {
   // component state
   const initialBookData = {
     ISBN: "",
@@ -31,35 +31,34 @@ const VideoRoot: React.FC<Props> = () => {
   };
   const [bookData, setBookData] = React.useState<BookData>(initialBookData);
   let [selectedCameraId, setSelectedCameraId] = React.useState(null);
-  let [availableCameras, setAvailableCameras] = React.useState([]);
 
   // scanning helper function
-  const scanCode = codeReader => {
-    codeReader.getVideoInputDevices().then(videoInputDevices => {
-      setAvailableCameras(videoInputDevices);
-      !selectedCameraId && setSelectedCameraId(videoInputDevices[0].deviceId);
-
-      codeReader
+  const readCode = codeReader => {
+    codeReader
         .decodeFromInputVideoDevice(selectedCameraId, "video-element")
         .then(res => {
-          const URL = getOpenLibraryUrl(res.text); // res.text is the scanned ISBN code
-          axios
-            .get(URL)
-            .then(function(response) {
-              // handle success
-              let { data } = response;
-              const key = Object.keys(data)[0];
-              const displayData: BookData = {
-                ISBN: res.text,
-                title: data[key].title,
-                authors: data[key].authors
-              };
-              setBookData(displayData);
-            })
-            .catch(e => console.log("error decoding barcode"));
+          fetchBookData(res)
         });
-    });
   };
+
+  const fetchBookData = (res: string) =>{
+    console.log("hittibg api")
+    const URL = getOpenLibraryUrl(res.text); // res.text is the scanned ISBN code
+    axios
+      .get(URL)
+      .then(function(response) {
+        // handle success
+        let { data } = response;
+        const key = Object.keys(data)[0];
+        const displayData: BookData = {
+          ISBN: res.text,
+          title: data[key].title,
+          authors: data[key].authors
+        };
+        setBookData(displayData);
+      })
+      .catch(e => console.log("error decoding barcode"));
+  }
 
   const renderDropdown = () => {
     if (availableCameras.length < 2) {
@@ -90,8 +89,11 @@ const VideoRoot: React.FC<Props> = () => {
   React.useEffect(() => {
     console.log("running");
     let codeReader = new BrowserBarcodeReader();
+    codeReader.getVideoInputDevices().then(videoInputDevices => {
+      !selectedCameraId && setSelectedCameraId(videoInputDevices[0].deviceId);
+    });
 
-    scanCode(codeReader);
+    readCode(codeReader);
 
     return () => {
       // cleanup on each rerender caused by state change
@@ -126,4 +128,4 @@ const VideoRoot: React.FC<Props> = () => {
   );
 };
 
-export default VideoRoot;
+
