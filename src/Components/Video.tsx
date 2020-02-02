@@ -1,9 +1,9 @@
 // @ts-nocheck
-import React from 'react';
-import axios from 'axios';
+import React from "react";
+import axios from "axios";
 
-import { BrowserBarcodeReader } from '@zxing/library'; // reference:  https://zxing-js.github.io/library/examples/barcode-camera/
-import BookDataView from './Bookdata';
+import { BrowserBarcodeReader } from "@zxing/library"; // reference:  https://zxing-js.github.io/library/examples/barcode-camera/
+import BookDataView from "./Bookdata";
 
 // REFERENCE:  examples: https://zxing-js.github.io/library/
 
@@ -27,9 +27,9 @@ interface Props {
 export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
   // component state
   const initialBookData = {
-    ISBN: '',
-    preview_url: '',
-    title: '',
+    ISBN: "",
+    preview_url: "",
+    title: "",
     author: []
   };
   const [lastScannedBook, setLastScannedBook] = React.useState<BookData>(null);
@@ -37,12 +37,12 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
   let [availableCameras, setAvailableCameras] = React.useState([]);
 
   // scanning helper function
-  const readCode = codeReader => {
+  const readCode = (codeReader: BrowserBarcodeReader) => {
     codeReader
-      .decodeFromInputVideoDevice(selectedCameraId, 'video-element')
+      .decodeFromInputVideoDevice(selectedCameraId, "video-element")
       .then(res => {
         // res.text is the scanned ISBN code
-        console.log('scanned something', res.text);
+        console.log("scanned something", res.text);
         if (!lastScannedBook || lastScannedBook.ISBN !== res.text) {
           fetchBookData(res);
         } else {
@@ -56,7 +56,7 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
   };
 
   const fetchBookData = async (res: string) => {
-    console.log('hitting api');
+    console.log("hitting api");
     const URL = getOpenLibraryUrl(res.text);
     axios
       .get(URL)
@@ -64,7 +64,7 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
         // handle success
         let { data } = response;
         if (data.ISBN === undefined) {
-          alert('Book Not Found in Database');
+          alert("Book Not Found in Database");
           resetCodeReader();
         }
         const key = Object.keys(data)[0];
@@ -83,7 +83,7 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
 
   const updateBookList = (fetched: BookData) => {
     let alreadyScanned = books.some(book => book.ISBN === fetched.ISBN);
-    console.log(books, fetched.ISBN, 'already scanned? ', alreadyScanned);
+    console.log(books, fetched.ISBN, "already scanned? ", alreadyScanned);
 
     if (!alreadyScanned) {
       const updated = [...books, fetched];
@@ -96,10 +96,10 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
       return null;
     } else {
       return (
-        <div id='sourceSelectPanel'>
-          <label htmlFor='sourceSelect'>Change video source:</label>
+        <div id="sourceSelectPanel">
+          <label htmlFor="sourceSelect">Change video source:</label>
           <select
-            id='sourceSelect'
+            id="sourceSelect"
             value={selectedCameraId}
             onChange={e => {
               setSelectedCameraId(e.target.value);
@@ -118,7 +118,7 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
   };
 
   React.useEffect(() => {
-    console.log('running');
+    console.log("running");
     let codeReader = new BrowserBarcodeReader();
     codeReader.getVideoInputDevices().then(videoInputDevices => {
       // set up available cameras - desktop vs mobile, for renderDropDown()
@@ -142,16 +142,16 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
       <div>
         {renderDropdown()}
         <video
-          id='video-element'
-          width='600'
-          height='350'
-          style={{ border: '1px solid gray' }}
+          id="video-element"
+          width="600"
+          height="350"
+          style={{ border: "1px solid gray" }}
         ></video>
       </div>
       <div>
         <p>
           {lastScannedBook && lastScannedBook.ISBN
-            ? 'Scanned'
+            ? "Scanned"
             : "Hold up a book's barcode to the camera"}
         </p>
         {availableCameras.length > 1 && (
