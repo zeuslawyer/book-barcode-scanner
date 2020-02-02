@@ -63,9 +63,9 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
       .then(response => {
         // handle success
         let { data } = response;
-        if (!data.title) {
+        if (data.ISBN === undefined) {
           alert('Book Not Found in Database');
-          resetCodeReader()
+          resetCodeReader();
         }
         const key = Object.keys(data)[0];
         const fetchedBook: BookData = {
