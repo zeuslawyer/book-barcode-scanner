@@ -46,18 +46,27 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
         if (!lastScannedBook || lastScannedBook.ISBN !== res.text) {
           fetchBookData(res);
         } else {
+          resetCodeReader();
         }
       });
   };
 
+  const resetCodeReader = () => {
+    setLastScannedBook(null);
+  };
+
   const fetchBookData = async (res: string) => {
-    console.log('hittibg api');
+    console.log('hitting api');
     const URL = getOpenLibraryUrl(res.text);
     axios
       .get(URL)
       .then(response => {
         // handle success
         let { data } = response;
+        if (!data.title) {
+          alert('Book Not Found in Database');
+          resetCodeReader()
+        }
         const key = Object.keys(data)[0];
         const fetchedBook: BookData = {
           ISBN: res.text,
