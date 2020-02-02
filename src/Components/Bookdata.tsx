@@ -2,20 +2,20 @@ import React from "react";
 import { BookData } from "./Video";
 
 interface Props extends BookData {
-  bookdata: BookData;
+  bookData: BookData;
 }
 
-const BookdataView: React.FC<Props> = (props: Props) => {
-  const { bookdata } = props;
+const BookDataView: React.FC<Props> = (props: Props) => {
+  const { bookData } = props;
   return (
     <>
-      <div> Title: {bookdata.title}</div>
-      <div>Authors: {bookdata.authors && renderAuthors(bookdata.authors)}</div>
+      <div> Title: {bookData.title}</div>
+      <div>Authors: {bookData.authors && renderAuthors(bookData.authors)}</div>
     </>
   );
 };
 
-export default BookdataView;
+export default BookDataView;
 
 function renderAuthors(authors: Array<{ url: string; name: string }>) {
   if (authors.length === 1) return authors[0].name;
