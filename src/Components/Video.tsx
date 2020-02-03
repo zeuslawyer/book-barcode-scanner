@@ -26,12 +26,15 @@ export const VideoRoot: React.FC<Props> = () => {
   let [selectedCameraId, setSelectedCameraId] = React.useState(null);
   let [availableCameras, setAvailableCameras] = React.useState([]);
 
+  console.log('...rendering....');
+
   // find the cameras and set them, run once only on mount
   React.useEffect(() => {
     // on component mount and re-renders:
+    console.log('use effect to load scanner and video inputs fired');
+
     let codeReader = new BrowserBarcodeReader();
 
-    console.log('use effect to get video inputs fired');
     codeReader.getVideoInputDevices().then(videoInputDevices => {
       // set up available cameras - desktop vs mobile, for renderDropDown()
       setAvailableCameras(videoInputDevices);
@@ -40,23 +43,26 @@ export const VideoRoot: React.FC<Props> = () => {
       !selectedCameraId && setSelectedCameraId(videoInputDevices[0].deviceId);
     });
     // start continuous reading from camera
-    if (!scannedCode) readCode(codeReader);
+    if (!scannedCode) startScanning(codeReader);
   }, [selectedCameraId, scannedCode]);
 
   // scanning helper function
-  const readCode = (codeReader: BrowserBarcodeReader) => {
-    console.log('readCode() fired');
+  const startScanning = (codeReader: BrowserBarcodeReader) => {
+    console.log('startScanning() fired');
     codeReader
       .decodeOnceFromVideoDevice(selectedCameraId, 'video-element')
       .then(res => {
-        // res.text is the scanned ISBN code
+        // res.text is the scanned ISBN code. if its already in state no need to update state
+        if (res.text === scannedCode) return;
         setScannedCode(res.text);
-        // if this book has not been scanned, hit the api
+        // if this book has not been added to list, hit the api
         if (books[res.text] === undefined) {
-          fetchBookData(res).then(() => setScannedCode(null));
+          fetchBookData(res);
         } else {
           // TODO:  alert that already scanned
+          console.log(' not fetching, already there in list');
         }
+        setScannedCode(null);
       });
   };
 
@@ -67,11 +73,11 @@ export const VideoRoot: React.FC<Props> = () => {
       .then(response => {
         // handle success
         let { data } = response;
-        if(Object.keys(data).length === 0){
-          console.log("No data for ", res.text)
+        if (Object.keys(data).length === 0) {
+          console.log('No data for ', res.text);
 
           // TODO:  create error messages
-          return
+          return;
         }
         const key = Object.keys(data)[0];
         let fetchedBook: BookData = {
