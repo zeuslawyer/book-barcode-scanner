@@ -5,7 +5,7 @@ interface Props extends BookData {
   bookList: BookData[];
 }
 
-const BookDataView: React.FC<Props> = (props: Props) => {
+export const BookListUi: React.FC<Props> = (props: Props) => {
   const { bookList } = props;
   return bookList.length > 0 ? (
     <ol>
@@ -21,7 +21,6 @@ const BookDataView: React.FC<Props> = (props: Props) => {
   ) : null;
 };
 
-export default BookDataView;
 
 function renderAuthors(authors: Array<{ url: string; name: string }>) {
   if (authors.length === 1) return authors[0].name;

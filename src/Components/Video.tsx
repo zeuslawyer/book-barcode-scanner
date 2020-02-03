@@ -3,7 +3,7 @@ import React from "react";
 import axios from "axios";
 
 import { BrowserBarcodeReader } from "@zxing/library"; // reference:  https://zxing-js.github.io/library/examples/barcode-camera/
-import BookDataView from "./Bookdata";
+import {BookListUi} from "./BookListUi";
 
 // REFERENCE:  examples: https://zxing-js.github.io/library/
 
@@ -159,7 +159,7 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
         )}
       </div>
       <br />
-      <BookDataView bookList={books} />
+      <BookListUi bookList={books} />
       <button onClick={() => setLastScannedBook(initialBookData)}>RESET</button>
     </>
   );
