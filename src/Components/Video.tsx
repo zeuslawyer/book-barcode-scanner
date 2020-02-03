@@ -14,48 +14,48 @@ export interface BookData {
   authors: Array<{ url: string; name: string }>;
 }
 
-
 export interface Books {
-  [key : string]: BookData; // make ISBNs the key for each val
-}
-
-function getOpenLibraryUrl(isbn) {
-  // https://openlibrary.org/dev/docs/api/books
-  return `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`;
+  [key: string]: BookData; // make ISBNs the key for each val
 }
 
 interface Props {}
 
-export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
-  // component state
-  const initialBookData = {
-    ISBN: '',
-    preview_url: '',
-    title: '',
-    author: []
-  };
-  const [lastScannedBook, setLastScannedBook] = React.useState<BookData>(null);
+export const VideoRoot: React.FC<Props> = () => {
+  const [scannedCode, setScannedCode] = React.useState<string>(null);
+  const [books, addToBooks] = React.useState<Books>({});
   let [selectedCameraId, setSelectedCameraId] = React.useState(null);
   let [availableCameras, setAvailableCameras] = React.useState([]);
 
   // scanning helper function
   const readCode = (codeReader: BrowserBarcodeReader) => {
+    console.log('readCode() fired');
     codeReader
-      .decodeFromInputVideoDevice(selectedCameraId, 'video-element')
+      .decodeOnceFromVideoDevice(selectedCameraId, 'video-element')
       .then(res => {
         // res.text is the scanned ISBN code
         console.log('scanned something', res.text);
-        if (!lastScannedBook || lastScannedBook.ISBN !== res.text) {
-          fetchBookData(res);
-        } else {
-          resetCodeReader();
-        }
+        setScannedCode(res.text);
+        fetchBookData(res).then(() => setScannedCode(null));
       });
   };
 
-  const resetCodeReader = () => {
-    setLastScannedBook(null);
-  };
+  // on component mount and re-renders:
+  let codeReader = new BrowserBarcodeReader();
+
+  // find the cameras and set them, run once only on mount
+  React.useEffect(() => {
+    console.log('use effect to get video inputs fired');
+    codeReader.getVideoInputDevices().then(videoInputDevices => {
+      // set up available cameras - desktop vs mobile, for renderDropDown()
+      setAvailableCameras(videoInputDevices);
+
+      // if no selected camera default to first one
+      !selectedCameraId && setSelectedCameraId(videoInputDevices[0].deviceId);
+    });
+  }, []);
+
+  // start continuous reading from camera
+  if (!scannedCode) readCode(codeReader);
 
   const fetchBookData = async (res: string) => {
     console.log('hitting api');
@@ -65,32 +65,19 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
       .then(response => {
         // handle success
         let { data } = response;
-        if (data.ISBN === undefined) {
-          alert('Book Not Found in Database');
-          resetCodeReader();
-        }
         const key = Object.keys(data)[0];
-        const fetchedBook: BookData = {
-          ISBN: res.text,
+        let fetchedBook: BookData = {
+          isbn: res.text,
           title: data[key].title,
           authors: data[key].authors
         };
 
-        setLastScannedBook(fetchedBook);
         // update list only if not already there
-        updateBookList(fetchedBook);
+        let allBooks = { ...books, [res.text]: fetchedBook };
+        addToBooks(allBooks);
+        return;
       })
       .catch(e => console.log(`Error: ${e}`));
-  };
-
-  const updateBookList = (fetched: BookData) => {
-    let alreadyScanned = books.some(book => book.ISBN === fetched.ISBN);
-    console.log(books, fetched.ISBN, 'already scanned? ', alreadyScanned);
-
-    if (!alreadyScanned) {
-      const updated = [...books, fetched];
-      addToList(updated);
-    }
   };
 
   const renderDropdown = () => {
@@ -119,26 +106,6 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
     }
   };
 
-  React.useEffect(() => {
-    console.log('running');
-    let codeReader = new BrowserBarcodeReader();
-    codeReader.getVideoInputDevices().then(videoInputDevices => {
-      // set up available cameras - desktop vs mobile, for renderDropDown()
-      setAvailableCameras(videoInputDevices);
-
-      // if no selected camera default to first one
-      !selectedCameraId && setSelectedCameraId(videoInputDevices[0].deviceId);
-    });
-    // start continuous reading from camera
-    readCode(codeReader);
-
-    return () => {
-      // cleanup codeReader var on each rerender caused by state change
-      codeReader = undefined;
-    };
-    // eslint-disable-next-line
-  }, [lastScannedBook, selectedCameraId]);
-
   return (
     <>
       <div>
@@ -152,17 +119,20 @@ export const VideoRoot: React.FC<Props> = ({ addToList, books }) => {
       </div>
       <div>
         <p>
-          {lastScannedBook && lastScannedBook.ISBN
-            ? 'Scanned'
-            : "Hold up a book's barcode to the camera"}
+          {scannedCode ? 'Scanned' : "Hold up a book's barcode to the camera"}
         </p>
         {availableCameras.length > 1 && (
           <p>Selected Camera: {selectedCameraId}</p>
         )}
       </div>
       <br />
-      <BookListUi bookList={books} />
-      <button onClick={() => setLastScannedBook(initialBookData)}>RESET</button>
+      <BookListUi bookCollection={books} />
+      <button onClick={() => {}}>RESET</button>
     </>
   );
 };
+
+function getOpenLibraryUrl(isbn) {
+  // https://openlibrary.org/dev/docs/api/books
+  return `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`;
+}

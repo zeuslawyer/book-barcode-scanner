@@ -1,28 +1,32 @@
 import React from 'react';
 import { Books } from './Video';
 
-interface Props  {
-  bookList: Books;
+interface Props {
+  bookCollection: Books;
 }
 
 export const BookListUi: React.FC<Props> = (props: Props) => {
-  const { bookList } = props;
-  let bookCodes =  Object.keys(bookList)
+  const { bookCollection } = props;
+
+  let bookCodes = Object.keys(bookCollection);
 
   return bookCodes.length > 0 ? (
     <ol>
       {bookCodes.map((isbn, idx) => {
         return (
           <li key={`${idx}-${isbn}`}>
-            <div> Title: {bookList[isbn].title}</div>
-            <div>Authors: {bookList[isbn].authors && renderAuthors(bookList[isbn].authors)}</div>
+            <div> Title: {bookCollection[isbn].title}</div>
+            <div>
+              Authors:{' '}
+              {bookCollection[isbn].authors &&
+                renderAuthors(bookCollection[isbn].authors)}
+            </div>
           </li>
         );
       })}
     </ol>
   ) : null;
 };
-
 
 function renderAuthors(authors: Array<{ url: string; name: string }>) {
   if (authors.length === 1) return authors[0].name;

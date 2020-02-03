@@ -1,6 +1,6 @@
 import React from 'react';
 import logo from './logo.svg';
-import { VideoRoot, BookData } from './Components/Video';
+import { VideoRoot } from './Components/Video';
 
 import './App.css';
 
