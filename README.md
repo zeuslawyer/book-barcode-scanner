@@ -2,9 +2,8 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## TODO
 
-- re do logic on building a collection of scanned books. Consider changing data structure to object with ISBN keys instead of array
-- ensure the the correct non deprecated API is used from zxing's BrowserCodeReader.ts file
-- use `decodeOnceFromVideoInput` and `.reset()`
+- follow TODOs in video.tsx
+- troubleshoot browser console errors from zxing 
 
 ## Available Scripts
 
