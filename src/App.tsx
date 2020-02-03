@@ -10,7 +10,6 @@ const App: React.FC = () => {
     <div className='App'>
       <header className='App-Main'>
         <img src={logo} className='App-logo' alt='logo' />
-        <p>Video should show below</p>
         <VideoRoot />
       </header>
       <footer>

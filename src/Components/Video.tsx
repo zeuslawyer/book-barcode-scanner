@@ -26,14 +26,14 @@ export const VideoRoot: React.FC<Props> = () => {
   let [selectedCameraId, setSelectedCameraId] = React.useState(null);
   let [availableCameras, setAvailableCameras] = React.useState([]);
 
-  console.log('...rendering....');
+  console.log('...rendering....', books);
 
   // find the cameras and set them, run once only on mount
   React.useEffect(() => {
     // on component mount and re-renders:
-    console.log('use effect to load scanner and video inputs fired');
+    console.log('use memo to load scanner and video inputs fired');
 
-    let codeReader = new BrowserBarcodeReader();
+    let codeReader = new BrowserBarcodeReader(2000);
 
     codeReader.getVideoInputDevices().then(videoInputDevices => {
       // set up available cameras - desktop vs mobile, for renderDropDown()
@@ -44,10 +44,15 @@ export const VideoRoot: React.FC<Props> = () => {
     });
     // start continuous reading from camera
     if (!scannedCode) startScanning(codeReader);
+
+    // cleanup on unmount
+    return () => {
+      codeReader = undefined;
+    };
   }, [selectedCameraId, scannedCode]);
 
   // scanning helper function
-  const startScanning = (codeReader: BrowserBarcodeReader) => {
+  function startScanning(codeReader: BrowserBarcodeReader) {
     console.log('startScanning() fired');
     codeReader
       .decodeOnceFromVideoDevice(selectedCameraId, 'video-element')
@@ -62,9 +67,12 @@ export const VideoRoot: React.FC<Props> = () => {
           // TODO:  alert that already scanned
           console.log(' not fetching, already there in list');
         }
-        setScannedCode(null);
+        // after decoding, update UI to show scan has been done, and reset state after timeout to trigger codeReader to refresh and restart scanning
+        window.setTimeout(() => {
+          setScannedCode(null);
+        }, 3000);
       });
-  };
+  }
 
   const fetchBookData = async (res: string) => {
     const URL = getOpenLibraryUrl(res.text);
@@ -126,16 +134,17 @@ export const VideoRoot: React.FC<Props> = () => {
     <>
       <div>
         {renderDropdown()}
-        <video
-          id='video-element'
-          width='600'
-          height='350'
-          style={{ border: '1px solid gray' }}
-        ></video>
+        <video id='video-element' width='500' height='250'></video>
       </div>
       <div>
         <p>
-          {scannedCode ? 'Scanned' : "Hold up a book's barcode to the camera"}
+          {scannedCode ? (
+            <span style={{ color: 'green', textTransform: 'uppercase' }}>
+              Scanned!
+            </span>
+          ) : (
+            "Hold up a book's barcode to the camera"
+          )}
         </p>
         {availableCameras.length > 1 && (
           <p>Selected Camera: {selectedCameraId}</p>
@@ -143,7 +152,9 @@ export const VideoRoot: React.FC<Props> = () => {
       </div>
       <br />
       <BookListUi bookCollection={books} />
-      <button onClick={() => {}}>RESET</button>
+      {Object.keys(books).length === 0 ? null : (
+        <button onClick={() => {}}>Download List</button>
+      )}
     </>
   );
 };
