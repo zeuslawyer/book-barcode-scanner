@@ -28,7 +28,7 @@ export const BookListUi: React.FC<Props> = (props: Props) => {
   ) : null;
 };
 
-function renderAuthors(authors: Array<{ url: string; name: string }>) {
+function renderAuthors(authors: Array<{ url?: string; name: string }>) {
   if (authors.length === 1) return authors[0].name;
   if (authors.length === 2) return `${authors[0].name} and ${authors[1].name}`;
 

@@ -11,7 +11,7 @@ export interface BookData {
   isbn: string;
   title: string;
   preview_url?: string;
-  authors: Array<{ url: string; name: string }>;
+  authors: Array<{ url?: string; name: string }>;
 }
 
 export interface Books {
@@ -25,8 +25,6 @@ export const VideoRoot: React.FC<Props> = () => {
   const [books, addToBooks] = React.useState<Books>({});
   let [selectedCameraId, setSelectedCameraId] = React.useState(null);
   let [availableCameras, setAvailableCameras] = React.useState([]);
-
-  console.log('...rendering....', books);
 
   // find the cameras and set them, run once only on mount
   React.useEffect(() => {
@@ -60,12 +58,12 @@ export const VideoRoot: React.FC<Props> = () => {
         // res.text is the scanned ISBN code. if its already in state no need to update state
         if (res.text === scannedCode) return;
         setScannedCode(res.text);
+
         // if this book has not been added to list, hit the api
         if (books[res.text] === undefined) {
           fetchBookData(res);
         } else {
           // TODO:  alert that already scanned
-          console.log(' not fetching, already there in list');
         }
         // after decoding, update UI to show scan has been done, and reset state after timeout to trigger codeReader to refresh and restart scanning
         window.setTimeout(() => {
@@ -82,11 +80,10 @@ export const VideoRoot: React.FC<Props> = () => {
         // handle success
         let { data } = response;
         if (Object.keys(data).length === 0) {
-          console.log('No data for ', res.text);
-
           // TODO:  create error messages
           return;
         }
+        // else
         const key = Object.keys(data)[0];
         let fetchedBook: BookData = {
           isbn: res.text,
