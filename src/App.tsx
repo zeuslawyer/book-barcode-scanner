@@ -5,14 +5,13 @@ import { VideoRoot, BookData } from './Components/Video';
 import './App.css';
 
 const App: React.FC = () => {
-  const [$bookList, updateBookList] = React.useState<BookData[]>([]);
 
   return (
     <div className='App'>
       <header className='App-Main'>
         <img src={logo} className='App-logo' alt='logo' />
         <p>Video should show below</p>
-        <VideoRoot addToList={updateBookList} books={$bookList} />
+        <VideoRoot />
       </header>
       <footer>
         If you're on a mobile device, and the scanner is not working, please

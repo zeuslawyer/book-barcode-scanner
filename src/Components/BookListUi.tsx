@@ -1,19 +1,21 @@
 import React from 'react';
-import { BookData } from './Video';
+import { Books } from './Video';
 
-interface Props extends BookData {
-  bookList: BookData[];
+interface Props  {
+  bookList: Books;
 }
 
 export const BookListUi: React.FC<Props> = (props: Props) => {
   const { bookList } = props;
-  return bookList.length > 0 ? (
+  let bookCodes =  Object.keys(bookList)
+
+  return bookCodes.length > 0 ? (
     <ol>
-      {bookList.map((book, idx) => {
+      {bookCodes.map((isbn, idx) => {
         return (
-          <li key={`${idx}-${book.ISBN|| "n/a"}`}>
-            <div> Title: {book.title}</div>
-            <div>Authors: {book.authors && renderAuthors(book.authors)}</div>
+          <li key={`${idx}-${isbn}`}>
+            <div> Title: {bookList[isbn].title}</div>
+            <div>Authors: {bookList[isbn].authors && renderAuthors(bookList[isbn].authors)}</div>
           </li>
         );
       })}
