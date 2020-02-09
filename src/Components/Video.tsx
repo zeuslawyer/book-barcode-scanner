@@ -99,14 +99,11 @@ export const VideoRoot: React.FC<Props> = () => {
   };
 
   // initial scanner init, once on mount
-  React.useEffect(() => {
+  React.useMemo(() => {
     console.log('1st effect: scanner init fired');
     scannerInit();
     setScannerReady(true);
 
-    return () => {
-      codeReader = undefined;
-    };
   }, []);
 
   // once scanner initialised, start scanning
