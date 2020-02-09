@@ -30,7 +30,6 @@ export const VideoRoot: React.FC<Props> = () => {
   let [scannerReady, setScannerReady] = React.useState<boolean>(false);
   let [books, updateBooks] = React.useState<Books>({});
   let [selectedCameraId, setSelectedCameraId] = React.useState(null);
-  let [availableCameras, setAvailableCameras] = React.useState([]);
   let [messageEnum, setMessageEnum] = React.useState<Message>(null);
 
   let codeReader = new BrowserBarcodeReader(1500);
@@ -44,13 +43,15 @@ export const VideoRoot: React.FC<Props> = () => {
 
   function scannerInit() {
     // on component mount and re-renders:
-    codeReader.getVideoInputDevices().then(videoInputDevices => {
-      // set up available cameras - desktop vs mobile, for renderDropDown()
-      setAvailableCameras(videoInputDevices);
-
-      // if no selected camera default to first one
-      !selectedCameraId && setSelectedCameraId(videoInputDevices[0].deviceId);
-    }).catch(e=> console.log(e));
+    codeReader
+      .getVideoInputDevices()
+      .then(videoInputDevices => {
+        // if no selected camera default to first one
+        !selectedCameraId && videoInputDevices.length === 1
+          ? setSelectedCameraId(videoInputDevices[0].deviceId)
+          : setSelectedCameraId(videoInputDevices[1].deviceId);
+      })
+      .catch(e => console.log(e));
   }
   // scanning helper function
   function startScanning(codeReader: BrowserBarcodeReader) {
@@ -117,36 +118,9 @@ export const VideoRoot: React.FC<Props> = () => {
     // eslint-disable-next-line
   }, [scannerReady, selectedCameraId, scannedCode]);
 
-  const renderDropdown = () => {
-    if (availableCameras.length < 2) {
-      return null;
-    } else {
-      return (
-        <div id='sourceSelectPanel'>
-          <label htmlFor='sourceSelect'>Change video source:</label>
-          <select
-            id='sourceSelect'
-            value={selectedCameraId}
-            onChange={e => {
-              setSelectedCameraId(e.target.value);
-            }}
-          >
-            {availableCameras.map(option => (
-              <option key={option.deviceId} value={option.deviceId}>
-                {option.label}
-              </option>
-            ))}
-            )}
-          </select>
-        </div>
-      );
-    }
-  };
-
   return (
     <>
       <div>
-        {renderDropdown()}
         <video id='video-element' width='500' height='250'></video>
       </div>
       <div>
@@ -179,9 +153,6 @@ export const VideoRoot: React.FC<Props> = () => {
             </span>
           ) : null}
         </p>
-        {availableCameras.length > 1 && (
-          <p>Selected Camera: {selectedCameraId}</p>
-        )}
       </div>
       <br />
       <BookListUi bookCollection={books} />
