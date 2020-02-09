@@ -33,7 +33,7 @@ export const VideoRoot: React.FC<Props> = () => {
   let [availableCameras, setAvailableCameras] = React.useState([]);
   let [messageEnum, setMessageEnum] = React.useState<Message>(null);
 
-  let codeReader = new BrowserBarcodeReader(2000);
+  let codeReader = new BrowserBarcodeReader(1500);
 
   function resetPageForScanning() {
     window.setTimeout(() => {
@@ -41,7 +41,8 @@ export const VideoRoot: React.FC<Props> = () => {
       setMessageEnum(null);
     }, 2500);
   }
-  async function scannerInit() {
+
+  function scannerInit() {
     // on component mount and re-renders:
     codeReader.getVideoInputDevices().then(videoInputDevices => {
       // set up available cameras - desktop vs mobile, for renderDropDown()
@@ -49,7 +50,7 @@ export const VideoRoot: React.FC<Props> = () => {
 
       // if no selected camera default to first one
       !selectedCameraId && setSelectedCameraId(videoInputDevices[0].deviceId);
-    });
+    }).catch(e=> console.log(e));
   }
   // scanning helper function
   function startScanning(codeReader: BrowserBarcodeReader) {
@@ -59,10 +60,10 @@ export const VideoRoot: React.FC<Props> = () => {
         // res.text is the scanned ISBN code. if its already in state no need to update state
         setScannedCode(res.text);
         // if this book has not been added to list, hit the api
-        if (books[res.text] === undefined) {
-          fetchBookData(res);
-        } else {
+        if (books[res.text] !== undefined) {
           setMessageEnum(Message.AlreadyInList);
+        } else {
+          fetchBookData(res);
         }
         // after decoding, update UI to show scan has been done, and reset state after timeout to trigger codeReader to refresh and restart scanning
 
@@ -99,11 +100,12 @@ export const VideoRoot: React.FC<Props> = () => {
   };
 
   // initial scanner init, once on mount
-  React.useMemo(() => {
+  React.useEffect(() => {
     console.log('1st effect: scanner init fired');
+
     scannerInit();
     setScannerReady(true);
-
+    // eslint-disable-next-line
   }, []);
 
   // once scanner initialised, start scanning
@@ -112,11 +114,7 @@ export const VideoRoot: React.FC<Props> = () => {
 
     // start continuous reading from camera
     if (scannedCode === null && scannerReady) startScanning(codeReader);
-
-    // cleanup on unmount
-    return () => {
-      codeReader = undefined;
-    };
+    // eslint-disable-next-line
   }, [scannerReady, selectedCameraId, scannedCode]);
 
   const renderDropdown = () => {
