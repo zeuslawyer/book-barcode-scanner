@@ -1,11 +1,10 @@
 import React from 'react';
 import logo from './logo.svg';
-import { VideoRoot } from './Components/Video';
+import { VideoRoot } from './Components/VideoRoot';
 
 import './App.css';
 
 const App: React.FC = () => {
-
   return (
     <div className='App'>
       <header className='App-Main'>

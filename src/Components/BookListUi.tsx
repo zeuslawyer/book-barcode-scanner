@@ -1,5 +1,5 @@
 import React from 'react';
-import { Books } from './Video';
+import { Books } from './VideoRoot';
 
 interface Props {
   bookCollection: Books;
@@ -10,16 +10,18 @@ export const BookListUi: React.FC<Props> = (props: Props) => {
 
   let bookCodes = Object.keys(bookCollection);
 
+  // const inlineDivs = {"display": inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 12px;}
   return bookCodes.length > 0 ? (
     <ol>
       {bookCodes.map((isbn, idx) => {
         return (
-          <li key={`${idx}-${isbn}`}>
-            <div> Title: {bookCollection[isbn].title}</div>
+          <li key={`${idx}`}>
             <div>
-              Authors:{' '}
-              {bookCollection[isbn].authors &&
-                renderAuthors(bookCollection[isbn].authors)}
+              <div style={{ display: 'inline-block', zoom: '1' }}>
+                {`${bookCollection[isbn].title}, by 
+                ${bookCollection[isbn].authors &&
+                  renderAuthors(bookCollection[isbn].authors)}`}
+              </div>
             </div>
           </li>
         );
@@ -28,7 +30,7 @@ export const BookListUi: React.FC<Props> = (props: Props) => {
   ) : null;
 };
 
-function renderAuthors(authors: Array<{ url?: string; name: string }>) {
+export function renderAuthors(authors: Array<{ url?: string; name: string }>) {
   if (authors.length === 1) return authors[0].name;
   if (authors.length === 2) return `${authors[0].name} and ${authors[1].name}`;
 

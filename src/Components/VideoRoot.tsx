@@ -3,7 +3,7 @@ import React from 'react';
 import axios from 'axios';
 
 import { BrowserBarcodeReader } from '@zxing/library'; // reference:  https://zxing-js.github.io/library/examples/barcode-camera/
-import { BookListUi } from './BookListUi';
+import { BookListUi, renderAuthors } from './BookListUi';
 
 // REFERENCE:  examples: https://zxing-js.github.io/library/
 
@@ -157,7 +157,32 @@ export const VideoRoot: React.FC<Props> = () => {
       <br />
       <BookListUi bookCollection={books} />
       {Object.keys(books).length === 0 ? null : (
-        <button onClick={() => {}}>Download List</button>
+        <button
+          onClick={() => {
+            let text = '';
+            let count = 0;
+            for (const isbn in books) {
+              let title = books[isbn].title;
+              let author = renderAuthors(books[isbn].authors);
+              text += ++count + ') ' + title + ', by ' + author + '. \n';
+            }
+            if (count === 1) text = text.replace('1)', '').trimStart();
+            if (navigator.share) {
+              navigator
+                .share({
+                  title: "Here's what I'm reading that I think you'll like!",
+                  text,
+                  url: 'https://zp-book-scan.netlify.com'
+                })
+                .then(() => console.log('Successful share'))
+                .catch(error => console.log('Error sharing', error));
+            } else {
+              console.log('no sharing possible');
+            }
+          }}
+        >
+          Download List
+        </button>
       )}
     </>
   );
