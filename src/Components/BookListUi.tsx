@@ -10,14 +10,13 @@ export const BookListUi: React.FC<Props> = (props: Props) => {
 
   let bookCodes = Object.keys(bookCollection);
 
-  // const inlineDivs = {"display": inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 12px;}
   return bookCodes.length > 0 ? (
     <ol>
       {bookCodes.map((isbn, idx) => {
         return (
           <li key={`${idx}`}>
             <div>
-              <div style={{ display: 'inline-block', zoom: '1' }}>
+              <div>
                 {`${bookCollection[isbn].title}, by 
                 ${bookCollection[isbn].authors &&
                   renderAuthors(bookCollection[isbn].authors)}`}

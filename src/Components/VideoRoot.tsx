@@ -20,7 +20,9 @@ export interface Books {
 
 enum Message {
   AlreadyInList = 1,
-  NotFound
+  NotFound,
+  shareSuccess,
+  shareFail
 }
 
 interface Props {}
@@ -141,6 +143,20 @@ export const VideoRoot: React.FC<Props> = () => {
             >
               This book is already in your list!
             </span>
+          ) : messageEnum === Message.shareSuccess ? (
+            <span style={{ color: 'green', textTransform: 'uppercase' }}>
+              Share succesful!
+            </span>
+          ) : messageEnum === Message.shareFail ? (
+            <span
+              style={{
+                backgroundColor: 'red',
+                color: 'white',
+                textTransform: 'uppercase'
+              }}
+            >
+              Sorry, the share failed. Try again?
+            </span>
           ) : messageEnum === Message.NotFound ? (
             <span
               style={{
@@ -167,6 +183,8 @@ export const VideoRoot: React.FC<Props> = () => {
               text += ++count + ') ' + title + ', by ' + author + '. \n';
             }
             if (count === 1) text = text.replace('1)', '').trimStart();
+
+            // phone share functionality
             if (navigator.share) {
               navigator
                 .share({
@@ -174,8 +192,16 @@ export const VideoRoot: React.FC<Props> = () => {
                   text,
                   url: 'https://zp-book-scan.netlify.com'
                 })
-                .then(() => console.log('Successful share'))
-                .catch(error => console.log('Error sharing', error));
+                .then(() => {
+                  setMessageEnum(Message.shareSuccess);
+                  console.log('Successful share');
+                  resetPageForScanning()
+                })
+                .catch(error => {
+                  setMessageEnum(Message.shareFail);
+                  resetPageForScanning()
+                  console.log('Error sharing', error);
+                }).;
             } else {
               console.log('no sharing possible');
             }
