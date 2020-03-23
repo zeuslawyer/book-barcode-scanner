@@ -66,14 +66,15 @@ export const VideoRoot: React.FC<Props> = () => {
       .then(res => {
         // res.text is the scanned ISBN code. if its already in state no need to update state
         setScannedCode(res.text);
-        // if this book has not been added to list, hit the api
+        // book already scanned
         if (books && books[res.text] !== undefined) {
           setMessageEnum(Message.AlreadyInList);
+          resetScanner();
         } else {
-          fetchBookData(res);
+          // if this book has not been added to list, hit the api
+          fetchBookData(res).then(_ => resetScanner());
         }
         // after decoding, update UI to show scan has been done, and reset scannedCode state after timeout to trigger useEffect with dep = codeReader, to refresh and restart scanning
-        resetScanner();
       })
       .catch(e => console.log('decoder error', e));
   }
