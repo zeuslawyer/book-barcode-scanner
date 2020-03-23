@@ -53,11 +53,12 @@ export const VideoRoot: React.FC<Props> = () => {
       .getVideoInputDevices()
       .then(videoInputDevices => {
         // if no selected camera default to first one
-        !selectedCameraId && videoInputDevices.length === 1
-          ? setSelectedCameraId(videoInputDevices[0].deviceId)
-          : setSelectedCameraId(videoInputDevices[1].deviceId);
+        if (!selectedCameraId && videoInputDevices.length === 1)
+          setSelectedCameraId(videoInputDevices[0].deviceId);
+        if (!selectedCameraId && videoInputDevices.length === 2)
+          setSelectedCameraId(videoInputDevices[1].deviceId);
       })
-      .catch(e => console.log(e));
+      .catch(e => console.error(e));
   }
   // scanning helper function
   function startScanning(codeReader: BrowserBarcodeReader) {
@@ -108,21 +109,13 @@ export const VideoRoot: React.FC<Props> = () => {
 
   // initial scanner init, once on mount
   React.useEffect(() => {
-    console.info('1st effect: scanner init fired');
-
     scannerInit();
     setScannerReady(true);
-    // eslint-disable-next-line
-  }, []);
+    console.info('useEffect fired. Scanner initialized');
 
-  // once scanner initialised, start scanning
-  React.useEffect(() => {
-    console.info('2nd effect: starting to scan');
-
-    // start continuous reading from camera
     if (scannedCode === null && scannerReady) startScanning(codeReader);
     // eslint-disable-next-line
-  }, [scannerReady, selectedCameraId, scannedCode]);
+  }, [scannerReady, scannedCode]);
 
   return (
     <>
@@ -179,7 +172,7 @@ export const VideoRoot: React.FC<Props> = () => {
         <button
           style={{ backgroundColor: 'white', width: '80px' }}
           onClick={() => {
-            resetScanner(0); // this must go first so cache is cleared so UI state is correct
+            setScannedCode(null); // this will trigger a useEffect
             updateBooks(null);
             setMessageEnum(null); // so error messages dont show
           }}
