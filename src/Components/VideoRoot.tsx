@@ -195,13 +195,13 @@ export const VideoRoot: React.FC<Props> = () => {
                 .then(() => {
                   setMessageEnum(Message.shareSuccess);
                   console.log('Successful share');
-                  resetPageForScanning()
+                  resetPageForScanning();
                 })
                 .catch(error => {
                   setMessageEnum(Message.shareFail);
-                  resetPageForScanning()
+                  resetPageForScanning();
                   console.log('Error sharing', error);
-                }).;
+                });
             } else {
               console.log('no sharing possible');
             }
