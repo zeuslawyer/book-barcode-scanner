@@ -85,7 +85,6 @@ export const VideoRoot: React.FC<Props> = () => {
         // handle success
         let { data } = response;
         if (Object.keys(data).length === 0) {
-          console.log('NO BOOK DATA FOUND');
           setMessageEnum(Message.NotFound);
           return;
         }
@@ -102,12 +101,12 @@ export const VideoRoot: React.FC<Props> = () => {
         updateBooks(allBooks);
         return;
       })
-      .catch(e => console.log(`Error: ${e}`));
+      .catch(e => console.error(`Error: ${e}`));
   };
 
   // initial scanner init, once on mount
   React.useEffect(() => {
-    console.log('1st effect: scanner init fired');
+    console.info('1st effect: scanner init fired');
 
     scannerInit();
     setScannerReady(true);
@@ -116,7 +115,7 @@ export const VideoRoot: React.FC<Props> = () => {
 
   // once scanner initialised, start scanning
   React.useEffect(() => {
-    console.log('2nd effect: starting to scan');
+    console.info('2nd effect: starting to scan');
 
     // start continuous reading from camera
     if (scannedCode === null && scannerReady) startScanning(codeReader);
@@ -178,8 +177,9 @@ export const VideoRoot: React.FC<Props> = () => {
         <button
           style={{ backgroundColor: 'white', width: '80px' }}
           onClick={() => {
-            updateBooks(null); // this must go first so cache is cleared so UI state is correct
-            resetScanner(0);
+            resetScanner(0); // this must go first so cache is cleared so UI state is correct
+            updateBooks(null);
+            setMessageEnum(null); // so error messages dont show
           }}
         >
           Reset
@@ -197,14 +197,14 @@ export const VideoRoot: React.FC<Props> = () => {
               let author = renderAuthors(books[isbn].authors);
               text += ++count + ') ' + title + ', by ' + author + '. \n';
             }
-            if (count === 1) text = text.replace('1)', '').trimStart();
+            if (count === 1) text = text.replace('1)', '').trimStart(); // remove number in text if only one book
 
             // phone share functionality
             if (navigator.share) {
               mobileShare(text)
                 .then(() => {
                   setMessageEnum(Message.shareSuccess);
-                  console.log('Successful share');
+                  console.info('Successful share');
                   resetScanner();
                 })
                 .catch(error => {
