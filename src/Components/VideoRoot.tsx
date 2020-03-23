@@ -30,12 +30,16 @@ interface Props {}
 export const VideoRoot: React.FC<Props> = () => {
   let [scannedCode, setScannedCode] = React.useState<string>(null);
   let [scannerReady, setScannerReady] = React.useState<boolean>(false);
-  let [books, updateBooks] = React.useState<Books>({});
+  let [books, updateBooks] = React.useState<Books>(null);
   let [selectedCameraId, setSelectedCameraId] = React.useState(null);
   let [messageEnum, setMessageEnum] = React.useState<Message>(null);
 
   let codeReader = new BrowserBarcodeReader(1500);
 
+  /**
+   *
+   * @param millis - milliseconds to pass to setTimeout. Default is 2500
+   */
   function resetPageForScanning(millis = 2500) {
     window.setTimeout(() => {
       setScannedCode(null);
@@ -63,13 +67,12 @@ export const VideoRoot: React.FC<Props> = () => {
         // res.text is the scanned ISBN code. if its already in state no need to update state
         setScannedCode(res.text);
         // if this book has not been added to list, hit the api
-        if (books[res.text] !== undefined) {
+        if (books && books[res.text] !== undefined) {
           setMessageEnum(Message.AlreadyInList);
         } else {
           fetchBookData(res);
         }
-        // after decoding, update UI to show scan has been done, and reset state after timeout to trigger codeReader to refresh and restart scanning
-
+        // after decoding, update UI to show scan has been done, and reset scannedCode state after timeout to trigger useEffect with dep = codeReader, to refresh and restart scanning
         resetPageForScanning();
       });
   }
@@ -174,8 +177,8 @@ export const VideoRoot: React.FC<Props> = () => {
       {!books ? null : (
         <button
           onClick={() => {
-            resetPageForScanning(100);
-            updateBooks(null);
+            updateBooks(null); // this must go first so cache is cleared so UI state is correct
+            resetPageForScanning(0);
           }}
         >
           Reset
