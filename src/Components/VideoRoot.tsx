@@ -173,42 +173,32 @@ export const VideoRoot: React.FC<Props> = () => {
       <br />
       <BookListUi bookCollection={books} />
       {Object.keys(books).length === 0 ? null : (
-        <button
-          onClick={() => {
-            let text = '';
-            let count = 0;
-            for (const isbn in books) {
-              let title = books[isbn].title;
-              let author = renderAuthors(books[isbn].authors);
-              text += ++count + ') ' + title + ', by ' + author + '. \n';
-            }
-            if (count === 1) text = text.replace('1)', '').trimStart();
+        <div>
+          <a id='invisibleLink' href='mailTo:' style={{}}>
+            test
+          </a>
+          <button
+            onClick={() => {
+              let text = '';
+              let count = 0;
+              for (const isbn in books) {
+                let title = books[isbn].title;
+                let author = renderAuthors(books[isbn].authors);
+                text += ++count + ') ' + title + ', by ' + author + '. \n';
+              }
+              if (count === 1) text = text.replace('1)', '').trimStart();
 
-            // phone share functionality
-            if (navigator.share) {
-              navigator
-                .share({
-                  title: "Here's what I'm reading that I think you'll like!",
-                  text,
-                  url: 'https://zp-book-scan.netlify.com'
-                })
-                .then(() => {
-                  setMessageEnum(Message.shareSuccess);
-                  console.log('Successful share');
-                  resetPageForScanning();
-                })
-                .catch(error => {
-                  setMessageEnum(Message.shareFail);
-                  resetPageForScanning();
-                  console.log('Error sharing', error);
-                });
-            } else {
-              console.log('no sharing possible');
-            }
-          }}
-        >
-          Download List
-        </button>
+              // phone share functionality
+              if (navigator.share) {
+                mobileShare(text);
+              } else {
+                desktopMail(text);
+              }
+            }}
+          >
+            Share
+          </button>
+        </div>
       )}
     </>
   );
@@ -217,4 +207,39 @@ export const VideoRoot: React.FC<Props> = () => {
 function getOpenLibraryUrl(isbn) {
   // https://openlibrary.org/dev/docs/api/books
   return `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`;
+}
+
+function mobileShare(text: string) {
+  return navigator
+    .share({
+      title: "Here's what I'm reading that I think you'll like!",
+      text,
+      url: 'https://zp-book-scan.netlify.com'
+    })
+    .then(() => {
+      setMessageEnum(Message.shareSuccess);
+      console.log('Successful share');
+      resetPageForScanning();
+    })
+    .catch(error => {
+      setMessageEnum(Message.shareFail);
+      resetPageForScanning();
+      console.log('Error sharing', error);
+    });
+}
+
+function desktopMail(text: string) {
+  const emailTo = window.prompt("Enter an email address you'd like to send to");
+  let linkRef = document.getElementById('invisibleLink');
+
+  let href = `mailto:${emailTo}?subject=I%20think%20you%20will%20like%20reading%20this!`;
+  const target = '_blank';
+  const rel = 'noopener noreferrer';
+
+  linkRef.setAttribute('href', href);
+  linkRef.setAttribute('target', target);
+  linkRef.setAttribute('rel', rel);
+  // linkRef.click();
+  window.open(href, target);
+  // window.location.href = href;
 }
