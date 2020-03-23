@@ -8,9 +8,9 @@ interface Props {
 export const BookListUi: React.FC<Props> = (props: Props) => {
   const { bookCollection } = props;
 
-  let bookCodes = Object.keys(bookCollection);
+  let bookCodes = bookCollection ? Object.keys(bookCollection) : [];
 
-  return bookCodes.length > 0 ? (
+  return !bookCodes ? null : (
     <ol>
       {bookCodes.map((isbn, idx) => {
         return (
@@ -26,7 +26,7 @@ export const BookListUi: React.FC<Props> = (props: Props) => {
         );
       })}
     </ol>
-  ) : null;
+  );
 };
 
 export function renderAuthors(authors: Array<{ url?: string; name: string }>) {

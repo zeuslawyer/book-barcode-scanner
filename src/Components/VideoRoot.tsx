@@ -36,11 +36,11 @@ export const VideoRoot: React.FC<Props> = () => {
 
   let codeReader = new BrowserBarcodeReader(1500);
 
-  function resetPageForScanning() {
+  function resetPageForScanning(millis = 2500) {
     window.setTimeout(() => {
       setScannedCode(null);
       setMessageEnum(null);
-    }, 2500);
+    }, millis);
   }
 
   function scannerInit() {
@@ -171,34 +171,39 @@ export const VideoRoot: React.FC<Props> = () => {
         </p>
       </div>
       <br />
+      {!books ? null : (
+        <button
+          onClick={() => {
+            resetPageForScanning(100);
+            updateBooks(null);
+          }}
+        >
+          Reset
+        </button>
+      )}
       <BookListUi bookCollection={books} />
-      {Object.keys(books).length === 0 ? null : (
-        <div>
-          <a id='invisibleLink' href='mailTo:' style={{}}>
-            test
-          </a>
-          <button
-            onClick={() => {
-              let text = '';
-              let count = 0;
-              for (const isbn in books) {
-                let title = books[isbn].title;
-                let author = renderAuthors(books[isbn].authors);
-                text += ++count + ') ' + title + ', by ' + author + '. \n';
-              }
-              if (count === 1) text = text.replace('1)', '').trimStart();
+      {!books ? null : (
+        <button
+          onClick={() => {
+            let text = '';
+            let count = 0;
+            for (const isbn in books) {
+              let title = books[isbn].title;
+              let author = renderAuthors(books[isbn].authors);
+              text += ++count + ') ' + title + ', by ' + author + '. \n';
+            }
+            if (count === 1) text = text.replace('1)', '').trimStart();
 
-              // phone share functionality
-              if (navigator.share) {
-                mobileShare(text);
-              } else {
-                desktopMail(text);
-              }
-            }}
-          >
-            Share
-          </button>
-        </div>
+            // phone share functionality
+            if (navigator.share) {
+              mobileShare(text);
+            } else {
+              desktopMail(text);
+            }
+          }}
+        >
+          Share
+        </button>
       )}
     </>
   );
@@ -230,16 +235,14 @@ function mobileShare(text: string) {
 
 function desktopMail(text: string) {
   const emailTo = window.prompt("Enter an email address you'd like to send to");
-  let linkRef = document.getElementById('invisibleLink');
+  const subject = "Here's what I'm reading that I think you'll like!";
+  const signoff =
+    '\n\n\n\n\n\n\n\n--sent using https://zp-book-scan.netlify.com--';
 
-  let href = `mailto:${emailTo}?subject=I%20think%20you%20will%20like%20reading%20this!`;
+  // reference https://stackoverflow.com/questions/5620324/mailto-link-with-html-body
+  let href = `mailto:${emailTo}?subject=${subject}&body=${encodeURIComponent(
+    text
+  )}${signoff}`;
   const target = '_blank';
-  const rel = 'noopener noreferrer';
-
-  linkRef.setAttribute('href', href);
-  linkRef.setAttribute('target', target);
-  linkRef.setAttribute('rel', rel);
-  // linkRef.click();
   window.open(href, target);
-  // window.location.href = href;
 }
