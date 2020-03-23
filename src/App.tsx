@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from './logo.svg';
+import logo from './logo_.svg';
 import { VideoRoot } from './Components/VideoRoot';
 
 import './App.css';

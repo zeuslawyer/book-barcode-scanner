@@ -3,7 +3,7 @@
 }
 
 header {
- padding: 20px;
+  padding: 20px;
 }
 
 footer {
@@ -11,8 +11,9 @@ footer {
 }
 
 .App-logo {
-  height: 20vmin;
+  height: 30vmin;
   pointer-events: none;
+  margin-bottom: 10px;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -22,7 +23,8 @@ footer {
 }
 
 .App-Main {
-  background-color: #282c34;
+  /* background-color: #282c34; */
+  background-color: #5478bf;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -30,6 +32,7 @@ footer {
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  z-index: 1;
 }
 
 .App-link {

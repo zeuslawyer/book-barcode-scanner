@@ -132,7 +132,7 @@ export const VideoRoot: React.FC<Props> = () => {
           {scannedCode === null && !messageEnum ? (
             "Hold up a book's barcode to the camera"
           ) : scannedCode && !messageEnum ? (
-            <span style={{ color: 'green', textTransform: 'uppercase' }}>
+            <span style={{ color: 'yellow', textTransform: 'uppercase' }}>
               Scanned!
             </span>
           ) : messageEnum === Message.AlreadyInList ? (
