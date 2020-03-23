@@ -35,6 +35,14 @@ export const VideoRoot: React.FC<Props> = () => {
   let [messageEnum, setMessageEnum] = React.useState<Message>(null);
 
   let codeReader = new BrowserBarcodeReader(1500);
+  const buttonStyle = {
+    backgroundColor: 'white',
+    width: '80px',
+    borderRadius: '12px',
+    border: '1px solid #222024',
+    padding: '14px',
+    fontSize: '14px'
+  };
 
   /**
    * Pauses for millis so that error message lingers for that duration, before setting scannedCode and causing re-render
@@ -170,7 +178,7 @@ export const VideoRoot: React.FC<Props> = () => {
       <br />
       {!books ? null : (
         <button
-          style={{ backgroundColor: 'white', width: '80px' }}
+          style={buttonStyle}
           onClick={() => {
             setScannedCode(null); // this will trigger a useEffect
             updateBooks(null);
@@ -183,7 +191,7 @@ export const VideoRoot: React.FC<Props> = () => {
       <BookListUi bookCollection={books} />
       {!books ? null : (
         <button
-          style={{ backgroundColor: 'white', width: '80px' }}
+          style={buttonStyle}
           onClick={() => {
             let text = '';
             let count = 0;
