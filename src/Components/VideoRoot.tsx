@@ -176,6 +176,7 @@ export const VideoRoot: React.FC<Props> = () => {
       <br />
       {!books ? null : (
         <button
+          style={{ backgroundColor: 'white', width: '80px' }}
           onClick={() => {
             updateBooks(null); // this must go first so cache is cleared so UI state is correct
             resetPageForScanning(0);
@@ -187,6 +188,7 @@ export const VideoRoot: React.FC<Props> = () => {
       <BookListUi bookCollection={books} />
       {!books ? null : (
         <button
+          style={{ backgroundColor: 'white', width: '80px' }}
           onClick={() => {
             let text = '';
             let count = 0;
