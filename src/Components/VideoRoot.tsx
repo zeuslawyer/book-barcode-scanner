@@ -239,10 +239,11 @@ function getOpenLibraryUrl(isbn) {
 }
 
 function mobileShare(text: string) {
+  const title = "Here's what I'm reading that I think you'll like!";
   return Promise.resolve(
     navigator.share({
-      title: "Here's what I'm reading that I think you'll like!",
-      text,
+      title,
+      text: title + ' ' + text,
       url: 'https://zp-book-scan.netlify.com'
     })
   );
