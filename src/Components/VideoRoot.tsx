@@ -40,7 +40,7 @@ export const VideoRoot: React.FC<Props> = () => {
    *
    * @param millis - milliseconds to pass to setTimeout. Default is 2500
    */
-  function resetPageForScanning(millis = 2500) {
+  function resetScanner(millis = 2500) {
     window.setTimeout(() => {
       setScannedCode(null);
       setMessageEnum(null);
@@ -73,7 +73,7 @@ export const VideoRoot: React.FC<Props> = () => {
           fetchBookData(res);
         }
         // after decoding, update UI to show scan has been done, and reset scannedCode state after timeout to trigger useEffect with dep = codeReader, to refresh and restart scanning
-        resetPageForScanning();
+        resetScanner();
       });
   }
 
@@ -148,7 +148,7 @@ export const VideoRoot: React.FC<Props> = () => {
             </span>
           ) : messageEnum === Message.shareSuccess ? (
             <span style={{ color: 'green', textTransform: 'uppercase' }}>
-              Share succesful!
+              Share successful!
             </span>
           ) : messageEnum === Message.shareFail ? (
             <span
@@ -179,7 +179,7 @@ export const VideoRoot: React.FC<Props> = () => {
           style={{ backgroundColor: 'white', width: '80px' }}
           onClick={() => {
             updateBooks(null); // this must go first so cache is cleared so UI state is correct
-            resetPageForScanning(0);
+            resetScanner(0);
           }}
         >
           Reset
@@ -201,9 +201,28 @@ export const VideoRoot: React.FC<Props> = () => {
 
             // phone share functionality
             if (navigator.share) {
-              mobileShare(text);
+              mobileShare(text)
+                .then(() => {
+                  setMessageEnum(Message.shareSuccess);
+                  console.log('Successful share');
+                  resetScanner();
+                })
+                .catch(error => {
+                  setMessageEnum(Message.shareFail);
+                  console.error('Error sharing on mobile', error);
+                  resetScanner();
+                });
             } else {
-              desktopMail(text);
+              desktopMail(text)
+                .then(res => {
+                  setMessageEnum(Message.shareSuccess);
+                  resetScanner();
+                })
+                .catch(error => {
+                  setMessageEnum(Message.shareFail);
+                  console.error('Error sharing on mobile', error);
+                  resetScanner();
+                });
             }
           }}
         >
@@ -220,22 +239,13 @@ function getOpenLibraryUrl(isbn) {
 }
 
 function mobileShare(text: string) {
-  return navigator
-    .share({
+  return Promise.resolve(
+    navigator.share({
       title: "Here's what I'm reading that I think you'll like!",
       text,
       url: 'https://zp-book-scan.netlify.com'
     })
-    .then(() => {
-      setMessageEnum(Message.shareSuccess);
-      console.log('Successful share');
-      resetPageForScanning();
-    })
-    .catch(error => {
-      setMessageEnum(Message.shareFail);
-      resetPageForScanning();
-      console.log('Error sharing', error);
-    });
+  );
 }
 
 function desktopMail(text: string) {
@@ -250,4 +260,5 @@ function desktopMail(text: string) {
   )}${signoff}`;
   const target = '_blank';
   window.open(href, target);
+  return Promise.resolve(emailTo);
 }
