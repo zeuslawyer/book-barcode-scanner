@@ -37,7 +37,7 @@ export const VideoRoot: React.FC<Props> = () => {
   let codeReader = new BrowserBarcodeReader(1500);
 
   /**
-   *
+   * Pauses for millis so that error message lingers for that duration, before setting scannedCode and causing re-render
    * @param millis - milliseconds to pass to setTimeout. Default is 2500
    */
   function resetScanner(millis = 2500) {
@@ -74,7 +74,8 @@ export const VideoRoot: React.FC<Props> = () => {
         }
         // after decoding, update UI to show scan has been done, and reset scannedCode state after timeout to trigger useEffect with dep = codeReader, to refresh and restart scanning
         resetScanner();
-      });
+      })
+      .catch(e => console.log('decoder error', e));
   }
 
   const fetchBookData = async (res: string) => {
