@@ -29,7 +29,6 @@ interface Props {}
 
 export const VideoRoot: React.FC<Props> = () => {
   let [scannedCode, setScannedCode] = React.useState<string>(null);
-  let [scannerReady, setScannerReady] = React.useState<boolean>(false);
   let [books, updateBooks] = React.useState<Books>(null);
   let [selectedCameraId, setSelectedCameraId] = React.useState(null);
   let [messageEnum, setMessageEnum] = React.useState<Message>(null);
@@ -55,19 +54,6 @@ export const VideoRoot: React.FC<Props> = () => {
     }, millis);
   }
 
-  function scannerInit() {
-    // on component mount and re-renders:
-    codeReader
-      .getVideoInputDevices()
-      .then(videoInputDevices => {
-        // if no selected camera default to first one
-        if (!selectedCameraId && videoInputDevices.length === 1)
-          setSelectedCameraId(videoInputDevices[0].deviceId);
-        if (!selectedCameraId && videoInputDevices.length === 2)
-          setSelectedCameraId(videoInputDevices[1].deviceId);
-      })
-      .catch(e => console.error(e));
-  }
   // scanning helper function
   function startScanning(codeReader: BrowserBarcodeReader) {
     codeReader
@@ -115,15 +101,30 @@ export const VideoRoot: React.FC<Props> = () => {
       .catch(e => console.error(`Error: ${e}`));
   };
 
-  // initial scanner init, once on mount
+  // initial scanner init, once on mount, then when scannedCode changes
   React.useEffect(() => {
-    scannerInit();
-    setScannerReady(true);
-    console.info('useEffect fired. Scanner initialized');
+    async function scannerInit() {
+      // on component mount and re-renders:
+      codeReader
+        .getVideoInputDevices()
+        .then(videoInputDevices => {
+          // if no selected camera default to first one
+          if (!selectedCameraId && videoInputDevices.length === 1)
+            setSelectedCameraId(videoInputDevices[0].deviceId);
+          if (!selectedCameraId && videoInputDevices.length === 2)
+            setSelectedCameraId(videoInputDevices[1].deviceId);
+        })
+        .then(_ => {
+          //start scanning only if scannedCode is null to reduce scan cycles
+          if (scannedCode === null) startScanning(codeReader);
+        })
+        .catch(e => console.error(e));
+    }
 
-    if (scannedCode === null && scannerReady) startScanning(codeReader);
+    scannerInit(); //async
+    console.info('useEffect fired. Scanner initialized');
     // eslint-disable-next-line
-  }, [scannerReady, scannedCode]);
+  }, [scannedCode]);
 
   return (
     <>
