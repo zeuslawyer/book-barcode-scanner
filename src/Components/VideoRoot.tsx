@@ -6,7 +6,6 @@ import { BrowserBarcodeReader } from '@zxing/library'; // reference:  https://zx
 import { BookListUi, renderAuthors } from './BookListUi';
 
 // REFERENCE:  examples: https://zxing-js.github.io/library/
-
 export interface BookData {
   isbn: string;
   title: string;
@@ -122,6 +121,7 @@ export const VideoRoot: React.FC<Props> = () => {
     }
 
     scannerInit(); //async
+
     console.info('useEffect fired. Scanner initialized');
     // eslint-disable-next-line
   }, [scannedCode]);
@@ -181,9 +181,9 @@ export const VideoRoot: React.FC<Props> = () => {
         <button
           style={buttonStyle}
           onClick={() => {
-            setScannedCode(null); // this will trigger a useEffect
-            updateBooks(null);
-            setMessageEnum(null); // so error messages dont show
+            resetScanner(0); // reset messageEnum and scannedCode immediately
+            // while it resets, set books to null
+            updateBooks(null); // remove books
           }}
         >
           Reset
