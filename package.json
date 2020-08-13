@@ -17,7 +17,7 @@
     "react-scripts": "3.3.0",
     "typescript": "~3.7.2",
     "zxing-typescript": "^0.1.2",
-    "serialize-javascript": "^2.1.1"
+    "serialize-javascript": "^3.1.0"
   },
   "scripts": {
     "start": "HTTPS=true react-scripts start",
