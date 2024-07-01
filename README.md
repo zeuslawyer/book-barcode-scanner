@@ -1,5 +1,9 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+It is a mobile friendly bardcode scanner that checks a book api for book metadata
+
+<image src="https://zeuslawyer.github.io/assets/scanner.gif"></image>
+
 ## TODO
 
 - follow TODOs in video.tsx
